@@ -41,15 +41,21 @@ async function run() {
 			.db("foodExpress")
 			.collection("groseryItems");
 		//get all items
-		app.get("/items", async (req, res) => {
+		app.get("/products", async (req, res) => {
+			const size = parseInt(req.params.size);
 			const query = {};
 			const cursor = groseryCollection.find(query);
-			const items = await cursor.toArray();
-			res.send(items);
+			let products;
+			if (size) {
+				products = await cursor.limit(size).toArray();
+			} else {
+				products = await cursor.toArray();
+			}
+			res.send(products);
 		});
 
 		//get one item data
-		app.get("/item:id", async (req, res) => {
+		app.get("/products/:id", async (req, res) => {
 			const id = req.params.id;
 			const query = { _id: ObjectId(id) };
 			const cursor = groseryCollection.findOne(query);
