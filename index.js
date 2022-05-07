@@ -150,6 +150,15 @@ async function run() {
 			const result = groseryCollection.insertOne(newProduct);
 			res.send(result);
 		});
+
+		app.get("/addedProducts/:name", async (req, res) => {
+			const user = req.params.name;
+
+			const query = { username: user };
+			const cursor = groseryCollection.find(query);
+			const result = await cursor.toArray();
+			res.send(result);
+		});
 	} finally {
 		//somthing
 	}
