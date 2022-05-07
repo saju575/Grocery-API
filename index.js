@@ -42,7 +42,8 @@ async function run() {
 			.collection("groseryItems");
 		//get all items
 		app.get("/products", async (req, res) => {
-			const size = parseInt(req.params.size);
+			const size = parseInt(req.query.size);
+
 			const query = {};
 			const cursor = groseryCollection.find(query);
 			let products;
@@ -58,9 +59,29 @@ async function run() {
 		app.get("/products/:id", async (req, res) => {
 			const id = req.params.id;
 			const query = { _id: ObjectId(id) };
-			const cursor = groseryCollection.findOne(query);
-			const item = await cursor.toArray();
-			res.send(item);
+			const result = await groseryCollection.findOne(query);
+			console.log(result);
+			res.send(result);
+		});
+		//update one item data
+
+		app.put("/products/:id", async (req, res) => {
+			const id = req.params.id;
+			const updateProduct = req.body;
+
+			const query = { _id: ObjectId(id) };
+			const option = { upsert: true };
+			const updateDoc = {
+				$set: {
+					quantity: updateProduct.quantity,
+				},
+			};
+			const result = await groseryCollection.updateOne(
+				query,
+				updateDoc,
+				option
+			);
+			res.send(result);
 		});
 	} finally {
 		//somthing
