@@ -40,6 +40,9 @@ async function run() {
 		const groseryCollection = client
 			.db("foodExpress")
 			.collection("groseryItems");
+		const sellCollection = client
+			.db("foodExpress")
+			.collection("sellProducts");
 		//get all items
 		app.get("/products", async (req, res) => {
 			const size = parseInt(req.query.size);
@@ -82,6 +85,53 @@ async function run() {
 				option
 			);
 			res.send(result);
+		});
+
+		//sell item update
+
+		app.put("/sellProducts", async (req, res) => {
+			//const id = req.params.id;
+			const updateProduct = req.body;
+			const query = { productId: updateProduct.productId };
+			const option = { upsert: true };
+			const result = await sellCollection.findOne(query);
+			let updateDoc;
+			if (result) {
+				updateDoc = {
+					$set: {
+						productId: updateProduct.productId,
+						productName: updateProduct.productName,
+						quantity:
+							parseInt(result.quantity) +
+							parseInt(updateProduct.quantity),
+						deliverUser: updateProduct.deliverUser,
+					},
+				};
+			} else {
+				updateDoc = {
+					$set: {
+						productId: updateProduct.productId,
+						productName: updateProduct.productName,
+						quantity: parseInt(updateProduct.quantity),
+						deliverUser: updateProduct.deliverUser,
+					},
+				};
+			}
+			const resultSend = await sellCollection.updateOne(
+				query,
+				updateDoc,
+				option
+			);
+			res.send(resultSend);
+		});
+
+		//sell post result
+
+		app.get("/sellProducts", async (req, res) => {
+			const query = {};
+			const cursor = sellCollection.find(query);
+			const products = await cursor.toArray();
+			res.send(products);
 		});
 	} finally {
 		//somthing
